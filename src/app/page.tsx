@@ -339,6 +339,34 @@ export default function Home() {
           </Tabs>
         </section>
 
+        {/* Suggest Tests CTA */}
+        <section className="container mx-auto px-6 pb-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl px-5 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-zinc-100">Suggest new tests</h3>
+                <p className="text-sm text-zinc-500">
+                  Think we missed a scenario? Open a GitHub issue and propose a Prisma vs Drizzle workload.
+                </p>
+              </div>
+              <a
+                href="https://github.com/CyberBoyAyush/orm-test/issues/new/choose"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-zinc-900 border-zinc-700 text-zinc-200 hover:bg-zinc-800"
+                >
+                  Propose a test
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="border-t border-zinc-800/50 py-8">
           <div className="container mx-auto px-6">

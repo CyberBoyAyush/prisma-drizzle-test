@@ -14,6 +14,7 @@ import {
   Layers,
   Lock,
   Package,
+  ExternalLink,
 } from "lucide-react";
 
 export default function AboutPage() {
@@ -276,9 +277,39 @@ await db.delete(users)
                 </span>
               </h1>
               <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
-                Learn about the test types, database schema, and how we measure ORM performance
+                See how this live Prisma vs Drizzle benchmark is set up, what each test covers, and how to read the numbers
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Suggest Tests CTA */}
+        <section className="container mx-auto px-6 pb-8">
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-zinc-900/60 border-zinc-800">
+              <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 py-6">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-zinc-100">Suggest new tests</h3>
+                  <p className="text-sm text-zinc-500">
+                    Think we missed a scenario? Open a GitHub issue and propose a Prisma vs Drizzle workload.
+                  </p>
+                </div>
+                <a
+                  href="https://github.com/CyberBoyAyush/orm-test/issues/new/choose"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-zinc-900 border-zinc-700 text-zinc-200 hover:bg-zinc-800"
+                  >
+                    Propose a test
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Button>
+                </a>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -294,19 +325,29 @@ await db.delete(users)
               </CardHeader>
               <CardContent className="space-y-4 text-zinc-400">
                 <p>
-                  This benchmark compares the performance of <strong className="text-emerald-400">Prisma 7.1.0</strong> and{" "}
-                  <strong className="text-sky-400">Drizzle ORM 0.45.0</strong> using real-world database operations on{" "}
-                  <strong className="text-zinc-300">Neon PostgreSQL</strong>.
+                  This is a live benchmark of <strong className="text-emerald-400">Prisma 7.1.0</strong> and{" "}
+                  <strong className="text-sky-400">Drizzle ORM 0.45.0</strong> hitting the same{" "}
+                  <strong className="text-zinc-300">Neon PostgreSQL</strong> database via Next.js server actions. Prisma uses
+                  the PrismaNeon adapter; Drizzle uses neon-serverless with the same <code>DATABASE_URL</code>.
                 </p>
                 <p>
-                  Each test measures the execution time of equivalent operations in both ORMs, ensuring fair comparison
-                  by using the same database, schema, and data volume.
+                  Each run executes the Prisma flow and then the Drizzle flow with identical inputs. Timings capture total
+                  execution time (network + Postgres + ORM work) using <code>performance.now()</code> on the server and are
+                  rounded to two decimals.
                 </p>
                 <div className="pt-4 border-t border-zinc-800">
                   <h3 className="text-zinc-200 font-semibold mb-2">Infrastructure</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm text-zinc-500">
-                    <li><strong className="text-zinc-300">Database</strong> - Neon PostgreSQL in Southeast Asia (Singapore) / AWS ap-southeast-1</li>
-                    <li><strong className="text-zinc-300">Website</strong> - Hosted on Railway (Singapore) / AWS ap-southeast-1</li>
+                    <li><strong className="text-zinc-300">Database</strong> - Neon PostgreSQL (serverless) in AWS ap-southeast-1</li>
+                    <li><strong className="text-zinc-300">Website</strong> - Hosted on Railway in the same region to keep latency stable</li>
+                  </ul>
+                </div>
+                <div className="pt-4 border-t border-zinc-800">
+                  <h3 className="text-zinc-200 font-semibold mb-2">Seeded Dataset</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-zinc-500">
+                    <li><strong className="text-zinc-300">Volume</strong> - 100 users, 400 posts (mix of published/unpublished), 1,000 comments</li>
+                    <li><strong className="text-zinc-300">Taxonomy</strong> - 20 categories, 40 tags, many-to-many links via post_categories/post_tags</li>
+                    <li><strong className="text-zinc-300">Shape</strong> - Realistic titles/content and view counts up to 50k from the seed script</li>
                   </ul>
                 </div>
                 <div className="pt-4 border-t border-zinc-800">
@@ -319,6 +360,14 @@ await db.delete(users)
                     <li><strong className="text-zinc-300">tags</strong> - Post tags</li>
                     <li><strong className="text-zinc-300">post_categories</strong> - Many-to-many relationship</li>
                     <li><strong className="text-zinc-300">post_tags</strong> - Many-to-many relationship</li>
+                  </ul>
+                </div>
+                <div className="pt-4 border-t border-zinc-800">
+                  <h3 className="text-zinc-200 font-semibold mb-2">Test Hygiene</h3>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-zinc-500">
+                    <li>Write-heavy tests use timestamped IDs and delete what they create so the base dataset stays consistent.</li>
+                    <li>Bulk runs insert 100 users and ~50 posts per run, then remove them before returning results.</li>
+                    <li>Transaction tests cover create/update/delete inside transactions and clean up in the final step.</li>
                   </ul>
                 </div>
               </CardContent>
@@ -394,22 +443,22 @@ await db.delete(users)
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Execution Time</h3>
                     <p className="text-sm">
-                      Each test measures the total execution time from start to completion, including database round-trips
-                      and ORM processing overhead.
+                        Each click runs one end-to-end pass per ORM (no batching). Timers wrap the whole server action, so
+                        numbers include network, Postgres, and ORM overhead and may vary slightly run to run.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Fair Comparison</h3>
                     <p className="text-sm">
-                      Both ORMs execute the same logical operations on identical data sets, ensuring a fair performance
-                      comparison.
+                        Both ORMs hit the same schema, dataset, region, and <code>DATABASE_URL</code>. Query shapes,
+                        filters, joins, groupings, and limits are mirrored as closely as the APIs allow.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Real-World Scenarios</h3>
                     <p className="text-sm">
-                      Tests are designed to reflect common database operations you'd encounter in production applications,
-                      from simple CRUD to complex analytical queries.
+                        Workloads mirror production-style patterns: relational joins across users/posts/comments/categories,
+                        aggregates with HAVING clauses, nested subqueries, multi-step transactions, and 100-row bulk writes.
                     </p>
                   </div>
                 </div>
