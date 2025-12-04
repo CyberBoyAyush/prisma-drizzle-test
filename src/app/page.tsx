@@ -110,7 +110,7 @@ export default function Home() {
                 <Database className="h-5 w-5 text-zinc-100" />
               </div>
               <div>
-                <h1 className="font-semibold text-zinc-100">ORM Benchmark</h1>
+                <h1 className="font-semibold text-zinc-100">ORM Test</h1>
                 <p className="text-xs text-zinc-500">Prisma 7.1.0 vs Drizzle 0.45.0</p>
               </div>
             </div>
@@ -129,10 +129,22 @@ export default function Home() {
                 Neon PostgreSQL
               </Badge>
               <a
-                href="https://github.com"
+                href="https://x.com/cyberboyayush"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+                aria-label="Twitter/X"
+              >
+                <svg className="h-5 w-5 text-zinc-400" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a
+                href="https://github.com/CyberBoyAyush/orm-test"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
+                aria-label="GitHub"
               >
                 <Github className="h-5 w-5 text-zinc-400" />
               </a>
@@ -331,11 +343,35 @@ export default function Home() {
         <footer className="border-t border-zinc-800/50 py-8">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                <span>Powered by Neon PostgreSQL</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  <span>Powered by Neon PostgreSQL</span>
+                </div>
+                <span className="hidden md:inline text-zinc-700">•</span>
+                <span>
+                  Created by{" "}
+                  <a
+                    href="https://aysh.me"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-300 hover:text-zinc-100 transition-colors"
+                  >
+                    Ayush Sharma
+                  </a>
+                </span>
               </div>
               <div className="flex items-center gap-6">
+                <a
+                  href="https://x.com/cyberboyayush"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 hover:text-zinc-300 transition-colors"
+                >
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
                 <a
                   href="https://www.prisma.io"
                   target="_blank"
