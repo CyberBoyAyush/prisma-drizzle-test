@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prisma vs Drizzle | ORM Performance Comparison",
+  title: "Prisma 7.1.0 vs Drizzle 0.45.0 | ORM Performance Comparison",
   description:
-    "A comprehensive performance comparison between Prisma 7 and Drizzle ORM using real-world database queries.",
+    "A comprehensive performance comparison between Prisma 7.1.0 and Drizzle ORM 0.45.0 using real-world database queries on Neon PostgreSQL.",
 };
 
 export default function RootLayout({

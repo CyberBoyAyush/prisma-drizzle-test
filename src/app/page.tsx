@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { TestCard } from "@/components/test-card";
 import { ComparisonChart } from "@/components/comparison-chart";
 import { ResultsTable } from "@/components/results-table";
@@ -27,6 +27,8 @@ import {
   Loader2,
   Github,
   ExternalLink,
+  Info,
+  ArrowRight,
 } from "lucide-react";
 
 const testRunners: Record<string, () => Promise<TestResult>> = {
@@ -41,15 +43,18 @@ const testRunners: Record<string, () => Promise<TestResult>> = {
 export default function Home() {
   const [results, setResults] = useState<Map<string, TestResult>>(new Map());
   const [isRunningAll, setIsRunningAll] = useState(false);
+  const [runningTestId, setRunningTestId] = useState<string | null>(null);
 
   const handleTestComplete = useCallback((testId: string, result: TestResult) => {
     setResults((prev) => new Map(prev).set(testId, result));
+    setRunningTestId(null);
   }, []);
 
   const runTest = useCallback(
     async (testId: string): Promise<TestResult> => {
       const runner = testRunners[testId];
       if (!runner) throw new Error(`Unknown test: ${testId}`);
+      setRunningTestId(testId);
       const result = await runner();
       handleTestComplete(testId, result);
       return result;
@@ -66,10 +71,12 @@ export default function Home() {
         await runTest(config.id);
       } catch (error) {
         console.error(`Failed to run ${config.name}:`, error);
+        setRunningTestId(null);
       }
     }
 
     setIsRunningAll(false);
+    setRunningTestId(null);
   };
 
   const allResults = Array.from(results.values());
@@ -88,9 +95,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-950">
       {/* Gradient Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/10 via-transparent to-transparent pointer-events-none" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-sky-900/10 via-transparent to-transparent pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-br from-zinc-950 via-black to-zinc-950 pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-sky-500/5 via-transparent to-transparent pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/3 via-transparent to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -103,10 +111,20 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="font-semibold text-zinc-100">ORM Benchmark</h1>
-                <p className="text-xs text-zinc-500">Prisma 7 vs Drizzle</p>
+                <p className="text-xs text-zinc-500">Prisma 7.1.0 vs Drizzle 0.45.0</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/about">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-zinc-900/50 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
+                >
+                  <Info className="h-4 w-4 mr-2" />
+                  About
+                </Button>
+              </Link>
               <Badge variant="outline" className="bg-zinc-900 border-zinc-700 text-zinc-400">
                 Neon PostgreSQL
               </Badge>
@@ -131,24 +149,42 @@ export default function Home() {
             </div>
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
               <span className="text-zinc-100">Compare </span>
-              <span className="bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">
-                Prisma
+              <span className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 bg-clip-text text-transparent">
+                Prisma 7.1.0
               </span>
               <span className="text-zinc-100"> vs </span>
-              <span className="bg-gradient-to-r from-sky-400 to-sky-600 bg-clip-text text-transparent">
-                Drizzle
+              <span className="bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 bg-clip-text text-transparent">
+                Drizzle 0.45.0
               </span>
             </h1>
             <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
-              A comprehensive performance benchmark comparing Prisma 7 and Drizzle ORM
+              A comprehensive performance benchmark comparing Prisma 7.1.0 and Drizzle ORM 0.45.0
               with real database queries on Neon PostgreSQL.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <div className="max-w-2xl mx-auto pt-2">
+              <p className="text-sm text-zinc-500 leading-relaxed">
+                This is a fun project I created to test and compare the performance differences between{" "}
+                <span className="text-emerald-400">Prisma</span> and{" "}
+                <span className="text-sky-400">Drizzle</span> ORMs. Each test measures real-world database
+                operations to help understand which ORM performs better for different use cases.
+              </p>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-4 pt-6">
+              <Link href="/about">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="bg-zinc-900/50 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
+                >
+                  Know More About Tests
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
               <Button
                 size="lg"
                 onClick={runAllTests}
                 disabled={isRunningAll}
-                className="bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white font-medium px-8"
+                className="bg-zinc-100 hover:bg-white text-zinc-900 font-semibold px-8 border-0 shadow-lg hover:shadow-2xl hover:scale-105 active:scale-100 transition-all duration-300 ease-out"
               >
                 {isRunningAll ? (
                   <>
@@ -162,14 +198,14 @@ export default function Home() {
                   </>
                 )}
               </Button>
-              <div className="flex items-center gap-4 text-sm text-zinc-500">
+              <div className="flex items-center gap-4 text-sm text-zinc-500 pt-2">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  Prisma 7
+                  Prisma 7.1.0
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
-                  Drizzle
+                  Drizzle 0.45.0
                 </div>
               </div>
             </div>
@@ -180,56 +216,63 @@ export default function Home() {
         {allResults.length > 0 && (
           <section className="container mx-auto px-6 pb-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              <Card className="bg-zinc-900/50 border-zinc-800">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-sm text-zinc-500 mb-1">Tests Completed</p>
-                    <p className="text-3xl font-bold text-zinc-100">
-                      {allResults.length}
-                      <span className="text-zinc-500 text-lg font-normal">
-                        /{TEST_CONFIGS.length}
-                      </span>
-                    </p>
+              {/* Tests Completed */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 mb-3">Tests Completed</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-semibold text-zinc-100 tabular-nums">
+                    {allResults.length}
+                  </span>
+                  <span className="text-zinc-600 text-sm">/{TEST_CONFIGS.length}</span>
+                </div>
+              </div>
+
+              {/* Total Time */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 mb-3">Total Time</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-lg font-semibold text-zinc-100 tabular-nums">
+                      {allResults.reduce((s, r) => s + r.prisma.timeMs, 0).toFixed(0)}
+                      <span className="text-xs text-zinc-500 font-normal ml-1">ms</span>
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-zinc-900/50 border-zinc-800">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-sm text-zinc-500 mb-1">Total Time</p>
-                    <p className="text-3xl font-bold">
-                      <span className="text-emerald-400">
-                        {allResults.reduce((s, r) => s + r.prisma.timeMs, 0).toFixed(0)}
-                      </span>
-                      <span className="text-zinc-500 text-lg font-normal mx-2">vs</span>
-                      <span className="text-sky-400">
-                        {allResults.reduce((s, r) => s + r.drizzle.timeMs, 0).toFixed(0)}
-                      </span>
-                      <span className="text-zinc-500 text-sm font-normal">ms</span>
-                    </p>
+                  <span className="text-zinc-600 text-xs">vs</span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-sky-500" />
+                    <span className="text-lg font-semibold text-zinc-100 tabular-nums">
+                      {allResults.reduce((s, r) => s + r.drizzle.timeMs, 0).toFixed(0)}
+                      <span className="text-xs text-zinc-500 font-normal ml-1">ms</span>
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-zinc-900/50 border-zinc-800">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-sm text-zinc-500 mb-1">Overall Winner</p>
-                    {overallWinner === "prisma" ? (
-                      <Badge className="bg-emerald-900/50 text-emerald-400 border-emerald-700 text-lg px-4 py-1">
-                        Prisma
-                      </Badge>
-                    ) : overallWinner === "drizzle" ? (
-                      <Badge className="bg-sky-900/50 text-sky-400 border-sky-700 text-lg px-4 py-1">
-                        Drizzle
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-zinc-800 border-zinc-700 text-lg px-4 py-1">
-                        Tie
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+
+              {/* Overall Winner */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 mb-3">Overall Winner</p>
+                <div className="flex items-center justify-between">
+                  {overallWinner === "prisma" ? (
+                    <span className="text-lg font-semibold text-emerald-400">Prisma</span>
+                  ) : overallWinner === "drizzle" ? (
+                    <span className="text-lg font-semibold text-sky-400">Drizzle</span>
+                  ) : (
+                    <span className="text-lg font-semibold text-zinc-400">Tie</span>
+                  )}
+                  {overallWinner && overallWinner !== "tie" && (
+                    <span className={`text-xs ${overallWinner === "prisma" ? "text-emerald-500/70" : "text-sky-500/70"}`}>
+                      {(() => {
+                        const prismaTotal = allResults.reduce((s, r) => s + r.prisma.timeMs, 0);
+                        const drizzleTotal = allResults.reduce((s, r) => s + r.drizzle.timeMs, 0);
+                        const diff = Math.abs(prismaTotal - drizzleTotal);
+                        const min = Math.min(prismaTotal, drizzleTotal);
+                        return `${Math.round((diff / min) * 100)}% faster`;
+                      })()}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         )}
@@ -258,6 +301,7 @@ export default function Home() {
                     config={config}
                     onRun={() => runTest(config.id)}
                     result={results.get(config.id) ?? null}
+                    isRunning={runningTestId === config.id}
                   />
                 ))}
               </div>

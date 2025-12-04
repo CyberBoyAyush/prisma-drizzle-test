@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +13,24 @@ interface TestCardProps {
   config: TestConfig;
   onRun: () => Promise<TestResult>;
   result: TestResult | null;
+  isRunning?: boolean;
 }
 
-export function TestCard({ config, onRun, result }: TestCardProps) {
+export function TestCard({ config, onRun, result, isRunning = false }: TestCardProps) {
   const [status, setStatus] = useState<TestStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isRunning) {
+      setStatus("running");
+      setError(null);
+    } else if (result) {
+      setStatus("completed");
+      setError(null);
+    } else if (!isRunning && !result) {
+      setStatus("idle");
+    }
+  }, [isRunning, result]);
 
   const handleRun = async () => {
     setStatus("running");
@@ -83,7 +96,7 @@ export function TestCard({ config, onRun, result }: TestCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {status === "running" && (
+        {status === "running" && !result && (
           <div className="space-y-3">
             <Skeleton className="h-12 w-full bg-zinc-800" />
             <Skeleton className="h-12 w-full bg-zinc-800" />
@@ -96,7 +109,7 @@ export function TestCard({ config, onRun, result }: TestCardProps) {
           </div>
         )}
 
-        {result && status === "completed" && (
+        {result && (
           <div className="space-y-3">
             <div className={`flex items-center justify-between p-3 rounded-lg border ${
               winner === "prisma" 
