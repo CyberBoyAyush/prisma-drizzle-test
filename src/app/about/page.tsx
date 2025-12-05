@@ -401,27 +401,31 @@ await db.delete(users)
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      <div className="space-y-2 min-w-0">
                         <div className="flex items-center gap-2">
                           <Badge className="bg-emerald-900/50 text-emerald-400 border-emerald-700">
                             Prisma
                           </Badge>
                           <span className="text-xs text-zinc-500">Example</span>
                         </div>
-                        <pre className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 overflow-x-auto text-xs text-zinc-300 font-mono">
-                          <code>{test.prismaExample}</code>
-                        </pre>
+                        <div className="overflow-x-auto rounded-lg bg-zinc-950 border border-zinc-800">
+                          <pre className="p-4 text-xs text-zinc-300 font-mono whitespace-pre">
+                            <code>{test.prismaExample}</code>
+                          </pre>
+                        </div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 min-w-0">
                         <div className="flex items-center gap-2">
                           <Badge className="bg-sky-900/50 text-sky-400 border-sky-700">
                             Drizzle
                           </Badge>
                           <span className="text-xs text-zinc-500">Example</span>
                         </div>
-                        <pre className="p-4 rounded-lg bg-zinc-950 border border-zinc-800 overflow-x-auto text-xs text-zinc-300 font-mono">
-                          <code>{test.drizzleExample}</code>
-                        </pre>
+                        <div className="overflow-x-auto rounded-lg bg-zinc-950 border border-zinc-800">
+                          <pre className="p-4 text-xs text-zinc-300 font-mono whitespace-pre">
+                            <code>{test.drizzleExample}</code>
+                          </pre>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

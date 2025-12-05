@@ -34,3 +34,18 @@ export interface ComparisonStats {
   percentageDiff: number;
 }
 
+export interface AggregateStats {
+  p95: number;
+  p90: number;
+  avg: number;
+  min: number;
+  max: number;
+}
+
+export interface DeepTestStats {
+  prisma: AggregateStats;
+  drizzle: AggregateStats;
+  runs: number;
+  testName: string;
+}
+

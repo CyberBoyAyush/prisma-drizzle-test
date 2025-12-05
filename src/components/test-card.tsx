@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Play, CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import type { TestConfig, TestResult, TestStatus } from "@/types";
+import type { AggregateStats, DeepTestStats, TestConfig, TestResult, TestStatus } from "@/types";
 import { formatTime } from "@/lib/benchmark";
 
 interface TestCardProps {
@@ -14,9 +14,20 @@ interface TestCardProps {
   onRun: () => Promise<TestResult>;
   result: TestResult | null;
   isRunning?: boolean;
+  onRunDeep?: () => Promise<void>;
+  deepStats?: DeepTestStats | null;
+  isDeepRunning?: boolean;
 }
 
-export function TestCard({ config, onRun, result, isRunning = false }: TestCardProps) {
+export function TestCard({
+  config,
+  onRun,
+  result,
+  isRunning = false,
+  onRunDeep,
+  deepStats,
+  isDeepRunning = false,
+}: TestCardProps) {
   const [status, setStatus] = useState<TestStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -69,29 +80,47 @@ export function TestCard({ config, onRun, result, isRunning = false }: TestCardP
   return (
     <Card className="bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 transition-colors">
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
             <CardTitle className="text-lg font-semibold text-zinc-100">
               {config.name}
             </CardTitle>
             {getStatusIcon()}
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleRun}
-            disabled={status === "running"}
-            className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600"
-          >
-            {status === "running" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="h-4 w-4" />
+          <div className="flex items-center gap-2 shrink-0">
+            {onRunDeep && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onRunDeep}
+                disabled={isDeepRunning || status === "running"}
+                className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600"
+              >
+                {isDeepRunning ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                ) : (
+                  <Play className="h-4 w-4 mr-1.5" />
+                )}
+                {isDeepRunning ? "Running..." : "DeepTest (10x)"}
+              </Button>
             )}
-            <span className="ml-2">{status === "running" ? "Running..." : "Run Test"}</span>
-          </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRun}
+              disabled={status === "running" || isDeepRunning}
+              className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600"
+            >
+              {status === "running" ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+              ) : (
+                <Play className="h-4 w-4 mr-1.5" />
+              )}
+              {status === "running" ? "Running..." : "Run Test"}
+            </Button>
+          </div>
         </div>
-        <CardDescription className="text-zinc-400">
+        <CardDescription className="text-zinc-400 mt-1">
           {config.description}
         </CardDescription>
       </CardHeader>
@@ -166,6 +195,18 @@ export function TestCard({ config, onRun, result, isRunning = false }: TestCardP
           </div>
         )}
 
+        {deepStats && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase text-zinc-500">{deepStats.runs} runs (DeepTest)</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <DeepStatsColumn label="Prisma" tone="emerald" stats={deepStats.prisma} />
+              <DeepStatsColumn label="Drizzle" tone="sky" stats={deepStats.drizzle} />
+            </div>
+          </div>
+        )}
+
         {status === "idle" && (
           <div className="flex items-center justify-center h-24 text-zinc-500">
             <p className="text-sm">Click "Run Test" to start</p>
@@ -173,6 +214,37 @@ export function TestCard({ config, onRun, result, isRunning = false }: TestCardP
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function DeepStatsColumn({
+  label,
+  stats,
+  tone,
+}: {
+  label: string;
+  stats: AggregateStats;
+  tone: "emerald" | "sky";
+}) {
+  const accent = tone === "emerald" ? "text-emerald-400" : "text-sky-400";
+  return (
+    <div className="space-y-1">
+      <p className={`text-xs uppercase ${accent}`}>{label}</p>
+      <StatRow name="p95" value={formatTime(stats.p95)} />
+      <StatRow name="p90" value={formatTime(stats.p90)} />
+      <StatRow name="avg" value={formatTime(stats.avg)} />
+      <StatRow name="min" value={formatTime(stats.min)} />
+      <StatRow name="max" value={formatTime(stats.max)} />
+    </div>
+  );
+}
+
+function StatRow({ name, value }: { name: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-zinc-300">
+      <span>{name}</span>
+      <span className="text-zinc-100">{value}</span>
+    </div>
   );
 }
 

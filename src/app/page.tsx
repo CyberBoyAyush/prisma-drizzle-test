@@ -18,7 +18,7 @@ import {
   runTransactionsTest,
   runBulkTest,
 } from "@/app/actions/tests";
-import type { TestResult } from "@/types";
+import type { AggregateStats, DeepTestStats, TestResult } from "@/types";
 import {
   Database,
   Zap,
@@ -40,10 +40,39 @@ const testRunners: Record<string, () => Promise<TestResult>> = {
   bulk: runBulkTest,
 };
 
+const calculatePercentile = (values: number[], percentile: number): number => {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = Math.min(
+    sorted.length - 1,
+    Math.max(0, Math.ceil(percentile * sorted.length) - 1)
+  );
+  return sorted[index];
+};
+
+const summarizeRuns = (values: number[]): AggregateStats => {
+  if (values.length === 0) {
+    return { p95: 0, p90: 0, avg: 0, min: 0, max: 0 };
+  }
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const avg = Math.round((total / values.length) * 100) / 100;
+
+  return {
+    p95: calculatePercentile(values, 0.95),
+    p90: calculatePercentile(values, 0.9),
+    avg,
+    min: Math.min(...values),
+    max: Math.max(...values),
+  };
+};
+
 export default function Home() {
   const [results, setResults] = useState<Map<string, TestResult>>(new Map());
   const [isRunningAll, setIsRunningAll] = useState(false);
   const [runningTestId, setRunningTestId] = useState<string | null>(null);
+  const [isRunningDeepTest, setIsRunningDeepTest] = useState(false);
+  const [deepRunningTestId, setDeepRunningTestId] = useState<string | null>(null);
+  const [deepResults, setDeepResults] = useState<Map<string, DeepTestStats>>(new Map());
 
   const handleTestComplete = useCallback((testId: string, result: TestResult) => {
     setResults((prev) => new Map(prev).set(testId, result));
@@ -79,6 +108,74 @@ export default function Home() {
     setRunningTestId(null);
   };
 
+  const runDeepTest = useCallback(async () => {
+    if (isRunningDeepTest) return;
+    setIsRunningDeepTest(true);
+    setDeepResults(new Map());
+
+    for (const config of TEST_CONFIGS) {
+      const prismaTimes: number[] = [];
+      const drizzleTimes: number[] = [];
+      setDeepRunningTestId(config.id);
+
+      for (let i = 0; i < 10; i += 1) {
+        try {
+          const result = await runTest(config.id);
+          prismaTimes.push(result.prisma.timeMs);
+          drizzleTimes.push(result.drizzle.timeMs);
+        } catch (error) {
+          console.error(`Failed to run deep test for ${config.name}:`, error);
+        }
+      }
+
+      setDeepResults((prev) =>
+        new Map(prev).set(config.id, {
+          prisma: summarizeRuns(prismaTimes),
+          drizzle: summarizeRuns(drizzleTimes),
+          runs: prismaTimes.length,
+          testName: config.name,
+        })
+      );
+    }
+
+    setDeepRunningTestId(null);
+    setIsRunningDeepTest(false);
+  }, [isRunningDeepTest, runTest]);
+
+  const runDeepTestSingle = useCallback(
+    async (testId: string) => {
+      if (isRunningDeepTest) return;
+      setIsRunningDeepTest(true);
+      setDeepRunningTestId(testId);
+
+      const prismaTimes: number[] = [];
+      const drizzleTimes: number[] = [];
+
+      for (let i = 0; i < 10; i += 1) {
+        try {
+          const result = await runTest(testId);
+          prismaTimes.push(result.prisma.timeMs);
+          drizzleTimes.push(result.drizzle.timeMs);
+        } catch (error) {
+          console.error(`Failed to run deep test for ${testId}:`, error);
+        }
+      }
+
+      setDeepResults((prev) =>
+        new Map(prev).set(testId, {
+          prisma: summarizeRuns(prismaTimes),
+          drizzle: summarizeRuns(drizzleTimes),
+          runs: prismaTimes.length,
+          testName: TEST_CONFIGS.find((t) => t.id === testId)?.name ?? testId,
+        })
+      );
+
+      setDeepRunningTestId(null);
+      setIsRunningDeepTest(false);
+    },
+    [isRunningDeepTest, runTest]
+  );
+
   const allResults = Array.from(results.values());
 
   const calculateOverallWinner = () => {
@@ -104,8 +201,8 @@ export default function Home() {
       <div className="relative z-10">
         {/* Header */}
         <header className="border-b border-zinc-800/50 backdrop-blur-sm bg-zinc-950/50 sticky top-0 z-50">
-          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="container mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-[220px]">
               <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/20 to-sky-500/20 border border-zinc-800">
                 <Database className="h-5 w-5 text-zinc-100" />
               </div>
@@ -114,7 +211,7 @@ export default function Home() {
                 <p className="text-xs text-zinc-500">Prisma 7.1.0 vs Drizzle 0.45.0</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <Link href="/about">
                 <Button
                   variant="outline"
@@ -191,44 +288,49 @@ export default function Home() {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col items-center justify-center gap-4 pt-6">
+            <div className="flex flex-col items-center gap-4 pt-6">
               <Link href="/about">
                 <Button
                   variant="outline"
-                  size="lg"
-                  className="bg-zinc-900/50 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
+                  className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
                 >
                   Know More About Tests
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                onClick={runAllTests}
-                disabled={isRunningAll}
-                className="bg-zinc-100 hover:bg-white text-zinc-900 font-semibold px-8 border-0 shadow-lg hover:shadow-2xl hover:scale-105 active:scale-100 transition-all duration-300 ease-out"
-              >
-                {isRunningAll ? (
-                  <>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={runAllTests}
+                  disabled={isRunningAll || isRunningDeepTest}
+                  className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium"
+                >
+                  {isRunningAll ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Running Tests...
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <Play className="h-4 w-4 mr-2" />
-                    Run All Tests
-                  </>
-                )}
-              </Button>
-              <div className="flex items-center gap-4 text-sm text-zinc-500 pt-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  )}
+                  Run All Tests
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={runDeepTest}
+                  disabled={isRunningAll || isRunningDeepTest}
+                  className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
+                >
+                  {isRunningDeepTest && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  DeepTest (10 runs)
+                  <Zap className="h-4 w-4 ml-2 text-amber-500" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-zinc-500">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   Prisma 7.1.0
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-sky-500" />
                   Drizzle 0.45.0
-                </div>
+                </span>
               </div>
             </div>
           </div>
@@ -324,6 +426,9 @@ export default function Home() {
                     onRun={() => runTest(config.id)}
                     result={results.get(config.id) ?? null}
                     isRunning={runningTestId === config.id}
+                    onRunDeep={() => runDeepTestSingle(config.id)}
+                    deepStats={deepResults.get(config.id) ?? null}
+                    isDeepRunning={deepRunningTestId === config.id && isRunningDeepTest}
                   />
                 ))}
               </div>
