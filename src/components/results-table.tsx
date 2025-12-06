@@ -41,8 +41,8 @@ export function ResultsTable({ results }: ResultsTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-zinc-800 overflow-hidden">
-        <Table>
+      <div className="rounded-xl border border-zinc-800 overflow-x-auto">
+        <Table className="min-w-[500px]">
           <TableHeader>
             <TableRow className="border-zinc-800 hover:bg-zinc-900/50">
               <TableHead className="text-zinc-400">Test</TableHead>
@@ -65,16 +65,14 @@ export function ResultsTable({ results }: ResultsTableProps) {
                     {result.testName}
                   </TableCell>
                   <TableCell
-                    className={`text-right font-mono ${
-                      winner === "prisma" ? "text-emerald-400" : "text-zinc-300"
-                    }`}
+                    className={`text-right font-mono ${winner === "prisma" ? "text-emerald-400" : "text-zinc-300"
+                      }`}
                   >
                     {formatTime(result.prisma.timeMs)}
                   </TableCell>
                   <TableCell
-                    className={`text-right font-mono ${
-                      winner === "drizzle" ? "text-sky-400" : "text-zinc-300"
-                    }`}
+                    className={`text-right font-mono ${winner === "drizzle" ? "text-sky-400" : "text-zinc-300"
+                      }`}
                   >
                     {formatTime(result.drizzle.timeMs)}
                   </TableCell>
@@ -102,16 +100,14 @@ export function ResultsTable({ results }: ResultsTableProps) {
             <TableRow className="border-zinc-800 bg-zinc-900/30">
               <TableCell className="font-bold text-zinc-100">Total</TableCell>
               <TableCell
-                className={`text-right font-mono font-bold ${
-                  totalPrisma < totalDrizzle ? "text-emerald-400" : "text-zinc-300"
-                }`}
+                className={`text-right font-mono font-bold ${totalPrisma < totalDrizzle ? "text-emerald-400" : "text-zinc-300"
+                  }`}
               >
                 {formatTime(totalPrisma)}
               </TableCell>
               <TableCell
-                className={`text-right font-mono font-bold ${
-                  totalDrizzle < totalPrisma ? "text-sky-400" : "text-zinc-300"
-                }`}
+                className={`text-right font-mono font-bold ${totalDrizzle < totalPrisma ? "text-sky-400" : "text-zinc-300"
+                  }`}
               >
                 {formatTime(totalDrizzle)}
               </TableCell>
@@ -119,7 +115,7 @@ export function ResultsTable({ results }: ResultsTableProps) {
                 {Math.round(
                   (Math.abs(totalPrisma - totalDrizzle) /
                     Math.min(totalPrisma, totalDrizzle)) *
-                    100
+                  100
                 )}%
               </TableCell>
               <TableCell className="text-center">

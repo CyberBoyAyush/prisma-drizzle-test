@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestCard } from "@/components/test-card";
 import { ComparisonChart } from "@/components/comparison-chart";
 import { ResultsTable } from "@/components/results-table";
+import { Navbar } from "@/components/navbar";
 import { TEST_CONFIGS } from "@/config/tests";
 import {
   runCrudTest,
@@ -25,9 +26,7 @@ import {
   BarChart3,
   Play,
   Loader2,
-  Github,
   ExternalLink,
-  Info,
   ArrowRight,
 } from "lucide-react";
 
@@ -200,54 +199,7 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-zinc-800/50 backdrop-blur-sm bg-zinc-950/50 sticky top-0 z-50">
-          <div className="container mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-[220px]">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/20 to-sky-500/20 border border-zinc-800">
-                <Database className="h-5 w-5 text-zinc-100" />
-              </div>
-              <div>
-                <h1 className="font-semibold text-zinc-100">ORM Test</h1>
-                <p className="text-xs text-zinc-500">Prisma 7.1.0 vs Drizzle 0.45.0</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link href="/about">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-zinc-900/50 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-100"
-                >
-                  <Info className="h-4 w-4 mr-2" />
-                  About
-                </Button>
-              </Link>
-              <Badge variant="outline" className="bg-zinc-900 border-zinc-700 text-zinc-400">
-                Neon PostgreSQL
-              </Badge>
-              <a
-                href="https://x.com/cyberboyayush"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
-                aria-label="Twitter/X"
-              >
-                <svg className="h-5 w-5 text-zinc-400" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-              <a
-                href="https://github.com/CyberBoyAyush/orm-test"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="h-5 w-5 text-zinc-400" />
-              </a>
-            </div>
-          </div>
-        </header>
+        <Navbar />
 
         {/* Hero Section */}
         <section className="container mx-auto px-6 py-16">
@@ -256,7 +208,7 @@ export default function Home() {
               <Zap className="h-3.5 w-3.5 text-amber-500" />
               Real-time Performance Testing
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               <span className="text-zinc-100">Compare </span>
               <span className="bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 bg-clip-text text-transparent">
                 Prisma 7.1.0
@@ -418,7 +370,7 @@ export default function Home() {
             </div>
 
             <TabsContent value="tests" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {TEST_CONFIGS.map((config) => (
                   <TestCard
                     key={config.id}

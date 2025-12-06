@@ -80,21 +80,21 @@ export function TestCard({
   return (
     <Card className="bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 transition-colors">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
             <CardTitle className="text-lg font-semibold text-zinc-100">
               {config.name}
             </CardTitle>
             {getStatusIcon()}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto w-full sm:w-auto">
             {onRunDeep && (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={onRunDeep}
                 disabled={isDeepRunning || status === "running"}
-                className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600"
+                className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 flex-1 sm:flex-none"
               >
                 {isDeepRunning ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -109,7 +109,7 @@ export function TestCard({
               variant="outline"
               onClick={handleRun}
               disabled={status === "running" || isDeepRunning}
-              className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600"
+              className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 flex-1 sm:flex-none"
             >
               {status === "running" ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -140,11 +140,10 @@ export function TestCard({
 
         {result && (
           <div className="space-y-3">
-            <div className={`flex items-center justify-between p-3 rounded-lg border ${
-              winner === "prisma" 
-                ? "bg-emerald-950/20 border-emerald-800/50" 
-                : "bg-zinc-800/50 border-zinc-700/50"
-            }`}>
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${winner === "prisma"
+              ? "bg-emerald-950/20 border-emerald-800/50"
+              : "bg-zinc-800/50 border-zinc-700/50"
+              }`}>
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
                 <span className="font-medium text-zinc-200">Prisma</span>
@@ -159,11 +158,10 @@ export function TestCard({
               </span>
             </div>
 
-            <div className={`flex items-center justify-between p-3 rounded-lg border ${
-              winner === "drizzle" 
-                ? "bg-sky-950/20 border-sky-800/50" 
-                : "bg-zinc-800/50 border-zinc-700/50"
-            }`}>
+            <div className={`flex items-center justify-between p-3 rounded-lg border ${winner === "drizzle"
+              ? "bg-sky-950/20 border-sky-800/50"
+              : "bg-zinc-800/50 border-zinc-700/50"
+              }`}>
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full bg-sky-500" />
                 <span className="font-medium text-zinc-200">Drizzle</span>
@@ -186,7 +184,7 @@ export function TestCard({
                     ((Math.max(result.prisma.timeMs, result.drizzle.timeMs) -
                       Math.min(result.prisma.timeMs, result.drizzle.timeMs)) /
                       Math.min(result.prisma.timeMs, result.drizzle.timeMs)) *
-                      100
+                    100
                   )}%
                 </span>{" "}
                 faster

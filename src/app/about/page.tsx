@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { Navbar } from "@/components/navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Database,
-  ArrowLeft,
   Code2,
   Zap,
   GitBranch,
@@ -240,31 +240,7 @@ await db.delete(users)
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-zinc-800/50 backdrop-blur-sm bg-zinc-950/50 sticky top-0 z-50">
-          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/20 to-sky-500/20 border border-zinc-800">
-                <Database className="h-5 w-5 text-zinc-100" />
-              </div>
-              <div>
-                <h1 className="font-semibold text-zinc-100">ORM Benchmark</h1>
-                <p className="text-xs text-zinc-500">Prisma 7.1.0 vs Drizzle 0.45.0</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-zinc-900 border-zinc-700 text-zinc-400 hover:bg-zinc-800"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Tests
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <Navbar />
 
         {/* Hero Section */}
         <section className="container mx-auto px-6 py-16">
@@ -379,7 +355,7 @@ await db.delete(users)
         <section className="container mx-auto px-6 pb-16">
           <div className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-3xl font-bold text-zinc-100 text-center">Test Types</h2>
-            
+
             {testDetails.map((test) => {
               const Icon = test.icon;
               return (
@@ -447,22 +423,22 @@ await db.delete(users)
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Execution Time</h3>
                     <p className="text-sm">
-                        Each click runs one end-to-end pass per ORM (no batching). Timers wrap the whole server action, so
-                        numbers include network, Postgres, and ORM overhead and may vary slightly run to run.
+                      Each click runs one end-to-end pass per ORM (no batching). Timers wrap the whole server action, so
+                      numbers include network, Postgres, and ORM overhead and may vary slightly run to run.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Fair Comparison</h3>
                     <p className="text-sm">
-                        Both ORMs hit the same schema, dataset, region, and <code>DATABASE_URL</code>. Query shapes,
-                        filters, joins, groupings, and limits are mirrored as closely as the APIs allow.
+                      Both ORMs hit the same schema, dataset, region, and <code>DATABASE_URL</code>. Query shapes,
+                      filters, joins, groupings, and limits are mirrored as closely as the APIs allow.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-zinc-200 font-semibold mb-1">Real-World Scenarios</h3>
                     <p className="text-sm">
-                        Workloads mirror production-style patterns: relational joins across users/posts/comments/categories,
-                        aggregates with HAVING clauses, nested subqueries, multi-step transactions, and 100-row bulk writes.
+                      Workloads mirror production-style patterns: relational joins across users/posts/comments/categories,
+                      aggregates with HAVING clauses, nested subqueries, multi-step transactions, and 100-row bulk writes.
                     </p>
                   </div>
                 </div>
